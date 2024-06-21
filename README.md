@@ -7,8 +7,8 @@ The code is stable while using Python 3.6.13, CUDA >=10.1
 
 - Clone this repository:
 ```bash
-git clone https://github.com/malshaV/sar_transformer
-cd sar_transformer
+git clone https://github.com/Omichougule/despeckling-transformer.git
+cd despeckling-transformer
 ```
 
 To install all the dependencies using conda:
