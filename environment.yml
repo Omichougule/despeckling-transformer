@@ -58,5 +58,5 @@ dependencies:
     - torch==1.7.1
     - torchvision==0.8.2
     - typing-extensions==4.0.0
-    - yapf==0.31.0
-prefix: /home/malsha/anaconda3/envs/sar
+    - yapf==0.31.0clear
+prefix: c/Users/User/anaconda3/envs/sar
