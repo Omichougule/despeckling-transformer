@@ -25,7 +25,7 @@ parser.add_argument('--save_path', required=True , type=str,
 parser.add_argument('--model', type=str,
                     help='model name')
 parser.add_argument('--crop', type=int, default=None)
-parser.add_argument('--device', default='cpu', type=str)
+parser.add_argument('--device', default='cuda', type=str)
 parser.add_argument('--loadmodel', default='load', type=str)
 
 
@@ -40,8 +40,8 @@ save_path = args.save_path
 
 
 
-device = torch.device("cpu")
-map_location=torch.device('cpu')
+device = torch.device("cuda")
+
 
 
 model = TransSARV2()
@@ -54,21 +54,21 @@ model = TransSARV2()
 
 
 # model.load_state_dict(torch.load(loaddirec))
-# model.load_state_dict(torch.load(loaddirec, map_location=torch.device('cpu')))
-# model.eval()
 
-state_dict = torch.load(loaddirec, map_location=torch.device('cpu'))
+# Load the state dictionary
+state_dict = torch.load("pretrained_models/model.pth")
 
-# Create a new state dict with the keys fixed
+# Create a new state dictionary without the "module." prefix
 new_state_dict = {}
-for key, value in state_dict.items():
-    new_key = key.replace('module.', '')  # remove `module.` prefix
-    new_state_dict[new_key] = value
+for k, v in state_dict.items():
+    if k.startswith("module."):
+        new_state_dict[k[7:]] = v  # Remove "module." prefix
+    else:
+        new_state_dict[k] = v
 
-# Load the new state dict into the model
+# Load the new state dictionary into the model
 model.load_state_dict(new_state_dict)
 
-# Ensure the model is in evaluation mode
 model.eval()
 
 
@@ -80,7 +80,7 @@ if not os.path.isdir(save_path):
 
 
 
-im_file = 'test_images/Pittsburg_CA_New_York_Point.png'
+im_file = 'test_images/SI_2014-01-04_TSX_7_2_125.png'
 
 img = cv2.imread(im_file,0) 
 noisy_im = (np.float32(img)+1.0)/256.0
@@ -89,20 +89,34 @@ noisy_im = (np.float32(img)+1.0)/256.0
 
 x = np.float32(noisy_im)
 x = F.to_tensor(x)
+print(x.shape)
+
 x = x.unsqueeze(0)
+from torchvision.transforms import v2
+from torchvision.transforms import CenterCrop, ToPILImage
+crop_size = 512
+pil_image = ToPILImage()(x.squeeze(0))
 
 
+center_cropped_image = CenterCrop(crop_size)(pil_image)
+center_cropped_image_np = np.array(CenterCrop(crop_size)(pil_image))
+
+cv2.imwrite("test_images/SI_2014-01-04_TSX_7_2_125_center.png", center_cropped_image_np)
+
+x = F.to_tensor(center_cropped_image)
+print(x.shape)
+x = x.unsqueeze(0)
+print(x.shape)
 pred_im = model(x)
 tmp = pred_im.detach().cpu().numpy()
 
 tmp = tmp.squeeze()
-tmp = tmp*256 -1
+tmp = tmp*256 - 1 
 
-filename_out = 'Pittsburg_CA_New_York_Point_results.png'
+filename_out = 'SI_2014-01-04_TSX_7_2_125_results.png'
 filepath_out = save_path + filename_out
 
 cv2.imwrite(filepath_out,tmp)
 
 
 print('done')
-
