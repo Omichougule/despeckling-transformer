@@ -131,6 +131,6 @@ if __name__ == '__main__':
     
     ### uncomment below lines if a new dataset generation is needed
 
-    # savepath = 'images/results/'
-    # generate_syn_dataset(savepath)
-    plot_clean_noisy_img("images/results/train/trn_2092.mat")
+    savepath = 'images/results/'
+    generate_syn_dataset(savepath)
+    # plot_clean_noisy_img("images/results/train/trn_2092.mat")
