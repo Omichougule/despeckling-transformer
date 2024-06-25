@@ -54,7 +54,7 @@ parser.add_argument('--train_dataset', required=True, type=str)
 parser.add_argument('--val_dataset', required=True, type=str)
 parser.add_argument('--modelname', default='off', type=str,
                     help='turn on img augmentation (default: False)')
-parser.add_argument('--cuda', default="off", type=str, 
+parser.add_argument('--cuda', default="on", type=str, 
                     help='switch on/off cuda option (default: off)')
 parser.add_argument('--aug', default='off', type=str,
                     help='turn on img augmentation (default: False)')
@@ -67,7 +67,7 @@ parser.add_argument('--model', default='TransSARV2', type=str,
 parser.add_argument('--direc', required=True , type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int ,default=256)
-parser.add_argument('--device', default='cpu', type=str)
+parser.add_argument('--device', default='cuda', type=str)
 parser.add_argument('--lambda_loss', default=0.04, type=float)
 
 args = parser.parse_args()
@@ -137,15 +137,15 @@ val_dataset = BSD_SAR(args.val_dataset, crop_size, training_set=False)
 dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 valloader = DataLoader(val_dataset, 1, shuffle=True)
 
-device = torch.device("cpu")
+device = torch.device("cuda")
 
 
 model = TransSARV2()
 
-# if torch.cuda.device_count() > 1:
-#   print("Let's use", torch.cuda.device_count(), "GPUs!")
-#   model = nn.DataParallel(model,device_ids=[0,1]).cuda()
-# model.to(device)
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  model = nn.DataParallel(model,device_ids=[0,1]).cuda()
+model.to(device)
 
 
 criterion = torch.nn.MSELoss()
@@ -177,8 +177,8 @@ def train_model(model, criterion, optimizer, dataloader, valloader, direc, num_e
                 running_loss_tv = 0.0
                 for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):        
     
-                    X_batch = Variable(X_batch.to(device ='cpu'))
-                    y_batch = Variable(y_batch.to(device='cpu'))
+                    X_batch = Variable(X_batch.to(device ='cuda'))
+                    y_batch = Variable(y_batch.to(device='cuda'))
                     
                     output = model(X_batch)
 
@@ -213,8 +213,8 @@ def train_model(model, criterion, optimizer, dataloader, valloader, direc, num_e
                 running_loss = 0.0
                 for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
 
-                    X_batch = Variable(X_batch.to(device='cpu'))
-                    y_batch = Variable(y_batch.to(device='cpu'))
+                    X_batch = Variable(X_batch.to(device='cuda'))
+                    y_batch = Variable(y_batch.to(device='cuda'))
 
                     output = model(X_batch)
 
