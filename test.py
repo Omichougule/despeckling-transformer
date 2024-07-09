@@ -80,7 +80,7 @@ if not os.path.isdir(save_path):
 
 
 
-im_file = 'test_images/SI_2014-01-04_TSX_7_2_125.png'
+im_file = 'test_images/sar_cor_test.jpg'
 
 img = cv2.imread(im_file,0) 
 noisy_im = (np.float32(img)+1.0)/256.0
@@ -92,20 +92,20 @@ x = F.to_tensor(x)
 print(x.shape)
 
 x = x.unsqueeze(0)
-from torchvision.transforms import v2
-from torchvision.transforms import CenterCrop, ToPILImage
-crop_size = 512
-pil_image = ToPILImage()(x.squeeze(0))
+# from torchvision.transforms import v2
+# from torchvision.transforms import CenterCrop, ToPILImage
+# crop_size = 512
+# pil_image = ToPILImage()(x.squeeze(0))
 
 
-center_cropped_image = CenterCrop(crop_size)(pil_image)
-center_cropped_image_np = np.array(CenterCrop(crop_size)(pil_image))
+# center_cropped_image = CenterCrop(crop_size)(pil_image)
+# center_cropped_image_np = np.array(CenterCrop(crop_size)(pil_image))
 
-cv2.imwrite("test_images/SI_2014-01-04_TSX_7_2_125_center.png", center_cropped_image_np)
+# cv2.imwrite("test_images/co_sar_center.jpg", center_cropped_image_np)
 
-x = F.to_tensor(center_cropped_image)
-print(x.shape)
-x = x.unsqueeze(0)
+# x = F.to_tensor(center_cropped_image)
+# print(x.shape)
+# x = x.unsqueeze(0)
 print(x.shape)
 pred_im = model(x)
 tmp = pred_im.detach().cpu().numpy()
@@ -113,7 +113,7 @@ tmp = pred_im.detach().cpu().numpy()
 tmp = tmp.squeeze()
 tmp = tmp*256 - 1 
 
-filename_out = 'SI_2014-01-04_TSX_7_2_125_results.png'
+filename_out = 'sar_cor_test_results.jpg'
 filepath_out = save_path + filename_out
 
 cv2.imwrite(filepath_out,tmp)
